@@ -12,7 +12,7 @@ const MENU_ID = "query-feishu-selection";
 const active = new Map();
 const documentPatterns = ["https://*.feishu.cn/*", "https://*.larksuite.com/*"];
 
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener(async (details) => {
   chrome.contextMenus.removeAll(() => {
     chrome.contextMenus.create({
       id: MENU_ID,
@@ -21,10 +21,13 @@ chrome.runtime.onInstalled.addListener(() => {
       documentUrlPatterns: documentPatterns,
     });
   });
-});
-
-chrome.action.onClicked.addListener((tab) => {
-  chrome.sidePanel.open({ windowId: tab.windowId }).catch(console.error);
+  await chrome.sidePanel
+    .setPanelBehavior({ openPanelOnActionClick: true })
+    .catch(console.error);
+  if (details.reason !== "install") return;
+  // 部分 Chrome 渠道允许安装事件直接打开侧栏；强制手势的渠道会拒绝，由点击工具栏图标兜底。
+  const window = await chrome.windows.getCurrent().catch(console.error);
+  if (window) await chrome.sidePanel.open({ windowId: window.id }).catch(() => {});
 });
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {

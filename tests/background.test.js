@@ -13,6 +13,7 @@ async function setup(
     auth: { endpoint: authEndpoint, token: "only-this-endpoint" },
   };
   const events = [];
+  const panel = { installOpenCount: 0, behavior: null };
   globalThis.fetch = fetchImpl;
   globalThis.chrome = {
     runtime: {
@@ -38,20 +39,19 @@ async function setup(
         },
       },
     },
-    action: {
-      onClicked: {
-        addListener: (fn) => {
-          listeners.action = fn;
-        },
-      },
-    },
     sidePanel: {
       open: async () => {
         events.push("open");
+        panel.installOpenCount++;
+      },
+      setPanelBehavior: async (behavior) => {
+        panel.behavior = behavior;
       },
     },
+    action: {},
     permissions: { contains: async () => allowed },
     windows: {
+      getCurrent: async () => ({ id: 1 }),
       onRemoved: {
         addListener: (fn) => {
           listeners.close = fn;
@@ -81,7 +81,7 @@ async function setup(
     },
   };
   await import(`../src/background.js?test=${crypto.randomUUID()}`);
-  return { listeners, session, events };
+  return { listeners, session, events, panel };
 }
 
 async function waitUntil(predicate) {
@@ -211,4 +211,18 @@ test("only extension panel messages can trigger a query", async () => {
   );
   assert.deepEqual(reply, { ok: true });
   assert.equal(calls, 1);
+});
+
+test("first install enables action-click behavior and tries to open the right-side panel", async () => {
+  const mock = await setup(async () => response("CREATE TABLE orders(id BIGINT)"));
+  await mock.listeners.install({ reason: "install" });
+  assert.deepEqual(mock.panel.behavior, { openPanelOnActionClick: true });
+  assert.equal(mock.panel.installOpenCount, 1);
+});
+
+test("updating the extension does not pop the panel open", async () => {
+  const mock = await setup(async () => response("CREATE TABLE orders(id BIGINT)"));
+  await mock.listeners.install({ reason: "update" });
+  assert.deepEqual(mock.panel.behavior, { openPanelOnActionClick: true });
+  assert.equal(mock.panel.installOpenCount, 0);
 });
