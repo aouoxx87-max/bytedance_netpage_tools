@@ -64,7 +64,7 @@ npm test
 
 ```text
 manifest.json       权限、后台进程和侧栏入口
-panel.html / .css    中文侧栏
+panel.html / .css    顶部标签页（查询表结构 / 查询任务信息）与中文界面
 src/api.js          表名与配置校验、GET 参数和 DDL 响应解析
 src/background.js   右键入口、请求调度及按窗口保留结果
 src/panel.js        授权、设置与结果展示

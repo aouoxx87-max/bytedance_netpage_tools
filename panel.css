@@ -13,34 +13,38 @@ body {
   margin: 0;
   min-width: 280px;
 }
-header {
+.tabs {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 25px 20px 22px;
+  position: sticky;
+  top: 0;
+  z-index: 2;
   background: #fff;
   border-bottom: 1px solid #e5eaf1;
 }
-.brand-mark {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: #e8efff;
-  color: #315de2;
-  font-size: 20px;
-  font-weight: 650;
-}
-h1 {
-  font-size: 18px;
-  margin: 0 0 5px;
-  letter-spacing: 0.5px;
-}
-header p {
-  margin: 0;
+.tab {
+  flex: 1;
+  padding: 12px 8px;
+  border-radius: 0;
+  background: transparent;
   color: #728096;
   font-size: 12px;
+  border-bottom: 2px solid transparent;
+}
+.tab.active {
+  color: #315de2;
+  border-bottom-color: #315de2;
+}
+.task-placeholder {
+  text-align: center;
+  padding: 42px 16px;
+  color: #7f8da3;
+}
+.task-placeholder p {
+  color: #566982;
+  margin: 12px 0 6px;
+}
+.task-placeholder span {
+  font-size: 11px;
 }
 main {
   padding: 16px;

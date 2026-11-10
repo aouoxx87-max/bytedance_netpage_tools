@@ -14,6 +14,8 @@ element("settings-form").addEventListener("submit", saveSettings);
 element("query").addEventListener("click", submitQuery);
 element("copy").addEventListener("click", copyResult);
 element("auth-mode").addEventListener("change", showAuthMode);
+element("tab-schema").addEventListener("click", () => switchTab("schema"));
+element("tab-task").addEventListener("click", () => switchTab("task"));
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area === "session" && changes[`query:${windowId}`])
     renderResult(changes[`query:${windowId}`].newValue);
@@ -23,6 +25,16 @@ chrome.storage.onChanged.addListener((changes, area) => {
     showDestination(changes.settings.newValue);
 });
 void initialize();
+
+function switchTab(name) {
+  const isSchema = name === "schema";
+  element("panel-schema").hidden = !isSchema;
+  element("panel-task").hidden = isSchema;
+  element("tab-schema").classList.toggle("active", isSchema);
+  element("tab-task").classList.toggle("active", !isSchema);
+  element("tab-schema").setAttribute("aria-selected", String(isSchema));
+  element("tab-task").setAttribute("aria-selected", String(!isSchema));
+}
 
 async function initialize() {
   try {

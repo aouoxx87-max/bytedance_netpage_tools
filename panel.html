@@ -8,14 +8,28 @@
     <script type="module" src="src/panel.js"></script>
   </head>
   <body>
-    <header>
-      <span class="brand-mark" aria-hidden="true">表</span>
-      <div>
-        <h1>页面工具集</h1>
-        <p>选中表名，对照文档查看建表语句</p>
-      </div>
-    </header>
+    <nav class="tabs" role="tablist">
+      <button
+        id="tab-schema"
+        class="tab active"
+        role="tab"
+        aria-selected="true"
+        aria-controls="panel-schema"
+      >
+        查询表结构
+      </button>
+      <button
+        id="tab-task"
+        class="tab"
+        role="tab"
+        aria-selected="false"
+        aria-controls="panel-task"
+      >
+        查询任务信息
+      </button>
+    </nav>
     <main>
+      <div id="panel-schema" role="tabpanel" aria-labelledby="tab-schema">
       <details id="configuration">
         <summary>
           查询设置 <span id="config-label">首次使用请授权</span>
@@ -129,6 +143,14 @@
           <pre id="raw-json"></pre>
         </details>
       </section>
+      </div>
+      <div id="panel-task" role="tabpanel" aria-labelledby="tab-task" hidden>
+        <section class="task-placeholder">
+          <div class="empty-symbol" aria-hidden="true">⌘</div>
+          <p>任务信息查询功能开发中</p>
+          <span>后续支持按任务 ID 查询任务详情</span>
+        </section>
+      </div>
       <footer>查询记录仅保留在当前浏览器会话</footer>
     </main>
   </body>
