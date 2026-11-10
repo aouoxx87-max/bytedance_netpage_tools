@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>飞书 Hive DDL 查询</title>
+    <link rel="stylesheet" href="panel.css" />
+    <script type="module" src="src/panel.js"></script>
+  </head>
+  <body>
+    <header>
+      <span class="brand-mark" aria-hidden="true">表</span>
+      <div>
+        <h1>Hive DDL 查询</h1>
+        <p>选中表名，对照文档查看建表语句</p>
+      </div>
+    </header>
+    <main>
+      <details id="configuration">
+        <summary>
+          查询设置 <span id="config-label">首次使用请授权</span>
+        </summary>
+        <form id="settings-form">
+          <p class="hint">接口：data.bytedance.net · Hive DDL</p>
+          <div class="row">
+            <div>
+              <label for="cid">集群 ID</label
+              ><input
+                id="cid"
+                type="text"
+                inputmode="numeric"
+                value="50"
+                pattern="[1-9][0-9]*"
+                required
+              />
+            </div>
+            <div>
+              <label for="database">默认库名</label
+              ><input
+                id="database"
+                value="ecom"
+                pattern="[A-Za-z0-9_]+"
+                required
+              />
+            </div>
+          </div>
+          <label for="auth-mode">鉴权方式</label>
+          <select id="auth-mode">
+            <option value="none">不使用鉴权</option>
+            <option value="cookie">使用当前 Chrome 的网页登录态</option>
+            <option value="bearer">Bearer Token</option>
+          </select>
+          <div id="token-field" hidden>
+            <label for="token">Bearer Token</label
+            ><input
+              id="token"
+              type="password"
+              autocomplete="off"
+              placeholder="仅保留在当前浏览器会话"
+            />
+          </div>
+          <p class="hint" id="auth-hint">
+            只会向指定接口发送集群 ID、库名和表名。
+          </p>
+          <a
+            href="https://data.bytedance.net/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >打开数据平台登录 ↗</a
+          >
+          <button type="submit" class="primary" id="save">
+            保存并授权接口
+          </button>
+          <p id="settings-status" role="status"></p>
+        </form>
+      </details>
+      <section aria-labelledby="selection-title">
+        <div class="section-heading">
+          <h2 id="selection-title">所选表名</h2>
+          <span id="selection-count" class="muted">0 字符</span>
+        </div>
+        <textarea
+          id="selection"
+          aria-label="所选表名"
+          rows="3"
+          maxlength="512"
+          placeholder="ecom.app_ranklist_product_stats_df"
+        ></textarea>
+        <p class="hint">
+          在飞书中选中“库名.表名”，右键查询。只选表名时使用默认库名。
+        </p>
+        <div class="actions">
+          <span id="destination" class="muted">请先保存并授权接口</span
+          ><button id="query" class="primary">查询 DDL</button>
+        </div>
+      </section>
+      <section aria-labelledby="result-title" class="result-section">
+        <div class="section-heading">
+          <h2 id="result-title">建表语句</h2>
+          <button id="copy" class="text-button" disabled>复制 DDL</button>
+        </div>
+        <div id="result-status" role="status" aria-live="polite">等待查询</div>
+        <p id="table-identity" class="muted" hidden></p>
+        <div id="empty-state">
+          <div class="empty-symbol" aria-hidden="true">⌘</div>
+          <p>选中表名，查看表结构</p>
+          <span>字段、类型、注释及分区定义将显示在这里</span>
+        </div>
+        <pre id="result" hidden></pre>
+        <p id="result-error" role="alert" hidden></p>
+        <details id="raw-response" hidden>
+          <summary>查看原始 JSON</summary>
+          <pre id="raw-json"></pre>
+        </details>
+      </section>
+      <footer>查询记录仅保留在当前浏览器会话</footer>
+    </main>
+  </body>
+</html>
