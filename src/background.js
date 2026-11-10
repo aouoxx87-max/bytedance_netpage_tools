@@ -21,13 +21,14 @@ chrome.runtime.onInstalled.addListener(async (details) => {
       documentUrlPatterns: documentPatterns,
     });
   });
-  await chrome.sidePanel
-    .setPanelBehavior({ openPanelOnActionClick: true })
-    .catch(console.error);
   if (details.reason !== "install") return;
   // 部分 Chrome 渠道允许安装事件直接打开侧栏；强制手势的渠道会拒绝，由点击工具栏图标兜底。
   const window = await chrome.windows.getCurrent().catch(console.error);
   if (window) await chrome.sidePanel.open({ windowId: window.id }).catch(() => {});
+});
+
+chrome.action.onClicked.addListener((tab) => {
+  void syncSelectionAndOpen(tab);
 });
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
@@ -36,6 +37,30 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   chrome.sidePanel.open({ windowId: tab.windowId }).catch(console.error);
   void runQuery(info.selectionText, tab.windowId);
 });
+
+async function syncSelectionAndOpen(tab) {
+  try {
+    const [, text] = await Promise.all([
+      chrome.sidePanel.open({ windowId: tab.windowId }),
+      readTabSelection(tab),
+    ]);
+    if (text)
+      await chrome.storage.session.set({
+        [`selection:${tab.windowId}`]: { text, at: Date.now() },
+      });
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function readTabSelection(tab) {
+  if (!/^https?:/.test(tab.url ?? "")) return "";
+  const results = await chrome.scripting.executeScript({
+    target: { tabId: tab.id },
+    func: () => window.getSelection()?.toString().trim() ?? "",
+  });
+  return results[0]?.result ?? "";
+}
 
 chrome.runtime.onMessage.addListener((message, sender, respond) => {
   if (

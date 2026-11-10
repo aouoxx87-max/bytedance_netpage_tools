@@ -18,6 +18,8 @@ element("auth-mode").addEventListener("change", showAuthMode);
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area === "session" && changes[`query:${windowId}`])
     renderResult(changes[`query:${windowId}`].newValue);
+  if (area === "session" && changes[`selection:${windowId}`]?.newValue)
+    fillSelection(changes[`selection:${windowId}`].newValue.text);
   if (area === "local" && changes.settings?.newValue)
     showDestination(changes.settings.newValue);
 });
@@ -28,7 +30,11 @@ async function initialize() {
     windowId = (await chrome.windows.getCurrent()).id;
     const [{ settings }, session] = await Promise.all([
       chrome.storage.local.get("settings"),
-      chrome.storage.session.get(["auth", `query:${windowId}`]),
+      chrome.storage.session.get([
+        "auth",
+        `query:${windowId}`,
+        `selection:${windowId}`,
+      ]),
     ]);
     const initial = settings ?? DEFAULT_SETTINGS;
     element("cid").value = initial.cid;
@@ -40,9 +46,16 @@ async function initialize() {
       element("token").value = session.auth.token;
     showAuthMode();
     renderResult(session[`query:${windowId}`]);
+    if (session[`selection:${windowId}`]?.text)
+      fillSelection(session[`selection:${windowId}`].text);
   } catch (error) {
     element("settings-status").textContent = errorMessage(error);
   }
+}
+
+function fillSelection(text) {
+  element("selection").value = text;
+  updateCount();
 }
 
 async function saveSettings(event) {

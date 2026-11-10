@@ -6,14 +6,18 @@ const response = (result) =>
 
 async function setup(
   fetchImpl,
-  { allowed = true, authEndpoint = DDL_ENDPOINT } = {},
+  {
+    allowed = true,
+    authEndpoint = DDL_ENDPOINT,
+    pageSelection = "ecom.orders",
+  } = {},
 ) {
   const listeners = {};
   const session = {
     auth: { endpoint: authEndpoint, token: "only-this-endpoint" },
   };
   const events = [];
-  const panel = { installOpenCount: 0, behavior: null };
+  const panel = { installOpenCount: 0 };
   globalThis.fetch = fetchImpl;
   globalThis.chrome = {
     runtime: {
@@ -44,11 +48,17 @@ async function setup(
         events.push("open");
         panel.installOpenCount++;
       },
-      setPanelBehavior: async (behavior) => {
-        panel.behavior = behavior;
+    },
+    action: {
+      onClicked: {
+        addListener: (fn) => {
+          listeners.action = fn;
+        },
       },
     },
-    action: {},
+    scripting: {
+      executeScript: async () => [{ result: pageSelection }],
+    },
     permissions: { contains: async () => allowed },
     windows: {
       getCurrent: async () => ({ id: 1 }),
@@ -213,16 +223,40 @@ test("only extension panel messages can trigger a query", async () => {
   assert.equal(calls, 1);
 });
 
-test("first install enables action-click behavior and tries to open the right-side panel", async () => {
+test("first install tries to open the right-side panel", async () => {
   const mock = await setup(async () => response("CREATE TABLE orders(id BIGINT)"));
   await mock.listeners.install({ reason: "install" });
-  assert.deepEqual(mock.panel.behavior, { openPanelOnActionClick: true });
   assert.equal(mock.panel.installOpenCount, 1);
 });
 
 test("updating the extension does not pop the panel open", async () => {
   const mock = await setup(async () => response("CREATE TABLE orders(id BIGINT)"));
   await mock.listeners.install({ reason: "update" });
-  assert.deepEqual(mock.panel.behavior, { openPanelOnActionClick: true });
   assert.equal(mock.panel.installOpenCount, 0);
+});
+
+test("clicking the action opens the panel and overwrites the table input with the page selection", async () => {
+  const mock = await setup(
+    async () => response("CREATE TABLE orders(id BIGINT)"),
+    { pageSelection: "ecom.app_ranklist_product_stats_df" },
+  );
+  mock.listeners.action({
+    id: 5,
+    windowId: 3,
+    url: "https://tenant.feishu.cn/docx/1",
+  });
+  await waitUntil(() =>
+    Boolean(mock.session["selection:3"]),
+  );
+  assert.equal(mock.events.includes("open"), true);
+  assert.equal(
+    mock.session["selection:3"].text,
+    "ecom.app_ranklist_product_stats_df",
+  );
+});
+
+test("non-http pages do not push a selection", async () => {
+  const mock = await setup(async () => response("CREATE TABLE orders(id BIGINT)"));
+  await mock.listeners.action({ id: 5, windowId: 4, url: "chrome://extensions/" });
+  assert.equal(mock.session["selection:4"], undefined);
 });
