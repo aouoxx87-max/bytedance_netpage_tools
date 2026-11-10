@@ -151,12 +151,8 @@ test("builds the supplied API contract with GET and exactly three query paramete
   assert.equal(request.options.redirect, "error");
   assert.equal(permissionOrigin(), "https://data.bytedance.net/*");
 });
-test("cookie mode includes browser credentials without reading or serializing cookies", () => {
-  const request = buildRequest(
-    { ...settings, authMode: "cookie" },
-    table,
-    "unused-token",
-  );
+test("default mode includes browser credentials without reading or serializing cookies", () => {
+  const request = buildRequest(settings, table, "unused-token");
   assert.equal(request.options.credentials, "include");
   assert.equal(request.options.headers.Authorization, undefined);
   assert.equal(request.options.headers.Cookie, undefined);
@@ -168,10 +164,13 @@ test("Bearer and no-auth modes omit browser credentials", () => {
   assert.equal(request.options.credentials, "omit");
   assert.throws(() => buildRequest(bearer, table, ""), /Token/);
   assert.throws(() => buildRequest(bearer, table, "a\nb"), /Token/);
-  assert.equal(
-    buildRequest(settings, table, "stale-token").options.headers.Authorization,
-    undefined,
+  const unauthenticated = buildRequest(
+    { ...settings, authMode: "none" },
+    table,
+    "stale-token",
   );
+  assert.equal(unauthenticated.options.headers.Authorization, undefined);
+  assert.equal(unauthenticated.options.credentials, "omit");
 });
 test("extracts DDL preserving newlines, Unicode, decimal types and partition clauses", async () => {
   const result = await query("orders");

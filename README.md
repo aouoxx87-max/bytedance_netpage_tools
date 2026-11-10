@@ -7,7 +7,7 @@
 1. 使用 Chrome 116 或以上版本，打开 `chrome://extensions`，开启「开发者模式」。
 2. 点击「加载已解压的扩展程序」，选择包含 `manifest.json` 的本项目目录。
 3. 点击扩展图标打开侧栏，在「查询设置」中确认集群 ID（默认 `50`）和默认库名（默认 `ecom`）。
-4. 选择接口实际使用的鉴权方式，再点击「保存并授权接口」，允许访问 `https://data.bytedance.net/*`。
+4. 保持默认的「使用当前 Chrome 的网页登录态」，先在同一 Chrome 中登录数据平台，再点击「保存并授权接口」，允许访问 `https://data.bytedance.net/*`。
 5. 在飞书文档中选中 `ecom.app_ranklist_product_stats_df`，右键选择「查询 Hive 建表语句」。也可在侧栏粘贴表名后点击「查询 DDL」。
 
 本扩展需要由你在 Chrome 的扩展管理页面加载。普通网页预览无法调用扩展 API，也不能代替真实扩展验收。
@@ -36,7 +36,7 @@ https://data.bytedance.net/new_coralng_rcp_api/v2/bridge/hive/ddl
 
 ## 鉴权
 
-首次默认不携带身份信息，需在设置中选择接口实际要求的模式。
+首次默认使用当前 Chrome 中 data.bytedance.net 的网页登录态，无需手工填写 Cookie 或 Token。更新扩展会保留此前保存的设置；如果旧版选择了「不使用鉴权」，请切换到「使用当前 Chrome 的网页登录态」并重新保存。
 
 - **使用当前 Chrome 的网页登录态**：先在同一 Chrome 用户配置中登录 `https://data.bytedance.net/`，再查询。扩展以 `credentials: include` 请求固定数据平台域名，浏览器负责附带匹配的 Cookie；扩展不读取、复制或保存 Cookie，不申请 `cookies` 权限。
 - **Bearer Token**：在设置中填写 Token，通过 `Authorization` 请求头发送。Token 只存于浏览器会话，重启浏览器或重载扩展后需重新填写。

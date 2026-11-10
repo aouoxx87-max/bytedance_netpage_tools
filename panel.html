@@ -47,7 +47,9 @@
           <label for="auth-mode">鉴权方式</label>
           <select id="auth-mode">
             <option value="none">不使用鉴权</option>
-            <option value="cookie">使用当前 Chrome 的网页登录态</option>
+            <option value="cookie" selected>
+              使用当前 Chrome 的网页登录态
+            </option>
             <option value="bearer">Bearer Token</option>
           </select>
           <div id="token-field" hidden>
@@ -60,7 +62,8 @@
             />
           </div>
           <p class="hint" id="auth-hint">
-            只会向指定接口发送集群 ID、库名和表名。
+            请求会携带当前 Chrome 对数据平台的登录
+            Cookie。请先在同一个浏览器中登录；扩展不会读取或保存 Cookie。
           </p>
           <a
             href="https://data.bytedance.net/"

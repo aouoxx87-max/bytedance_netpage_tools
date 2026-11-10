@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "飞书 Hive DDL 查询",
   "description": "选中飞书文档中的库名.表名，在侧边栏查询 Hive 建表语句。",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "minimum_chrome_version": "116",
   "permissions": ["contextMenus", "storage", "sidePanel"],
   "optional_host_permissions": ["https://data.bytedance.net/*"],

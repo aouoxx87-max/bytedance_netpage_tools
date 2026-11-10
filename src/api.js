@@ -3,7 +3,7 @@ export const DDL_ENDPOINT =
 export const DEFAULT_SETTINGS = {
   cid: "50",
   defaultDatabase: "ecom",
-  authMode: "none",
+  authMode: "cookie",
 };
 export const MAX_RESPONSE_BYTES = 1024 * 1024;
 const identifier = "(?:`[A-Za-z0-9_]+`|[A-Za-z0-9_]+)";
