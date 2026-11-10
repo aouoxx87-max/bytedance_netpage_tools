@@ -106,8 +106,8 @@ function renderResult(nextState) {
   element("result").textContent = state.result;
   element("raw-response").hidden = !success;
   element("raw-json").textContent = state.rawJson ?? "";
+  renderColumns(success ? state.columns : []);
   if (changedSelection) {
-    renderColumns(state.columns);
     element("ddl-response").open = false;
     element("raw-response").open = false;
   }
