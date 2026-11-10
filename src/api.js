@@ -15,10 +15,10 @@ export function parseSettings(input) {
   if (
     !input ||
     typeof input.cid !== "string" ||
-    !/^[1-9][0-9]*$/.test(input.cid) ||
+    !/^(0|[1-9][0-9]*)$/.test(input.cid) ||
     !Number.isSafeInteger(Number(input.cid))
   ) {
-    throw new Error("集群 ID 必须是正整数。");
+    throw new Error("集群 ID 必须是非负整数。");
   }
   if (
     typeof input.defaultDatabase !== "string" ||

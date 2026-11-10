@@ -126,8 +126,11 @@ test("refuses ambiguous text, SQL, multiple tables and malformed quoting", () =>
     assert.throws(() => parseSelection(value));
 });
 test("validates configuration at entry", () => {
-  for (const cid of ["0", "-1", "1.2", "abc", "9007199254740993", 50])
+  for (const cid of ["-1", "1.2", "abc", "9007199254740993", 50, ""])
     assert.throws(() => parseSettings({ ...DEFAULT_SETTINGS, cid }));
+  assert.doesNotThrow(() =>
+    parseSettings({ ...DEFAULT_SETTINGS, cid: "0" }),
+  );
   assert.throws(() =>
     parseSettings({ ...DEFAULT_SETTINGS, defaultDatabase: "db.name" }),
   );
