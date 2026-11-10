@@ -109,7 +109,22 @@
           <p>选中表名，查看表结构</p>
           <span>字段、类型、注释及分区定义将显示在这里</span>
         </div>
-        <pre id="result" hidden></pre>
+        <div id="columns-table" class="columns-scroll" hidden>
+          <table>
+            <thead>
+              <tr>
+                <th>字段名</th>
+                <th>字段类型</th>
+                <th>字段注释</th>
+              </tr>
+            </thead>
+            <tbody id="columns-body"></tbody>
+          </table>
+        </div>
+        <details id="ddl-response" hidden>
+          <summary>查看原始 DDL</summary>
+          <pre id="result"></pre>
+        </details>
         <p id="result-error" role="alert" hidden></p>
         <details id="raw-response" hidden>
           <summary>查看原始 JSON</summary>

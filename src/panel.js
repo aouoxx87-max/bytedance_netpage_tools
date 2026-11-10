@@ -101,11 +101,16 @@ function renderResult(nextState) {
   updateCount();
   const success = state.status === "success";
   element("empty-state").hidden = true;
-  element("result").hidden = !success;
+  element("columns-table").hidden = !success;
+  element("ddl-response").hidden = !success;
   element("result").textContent = state.result;
   element("raw-response").hidden = !success;
   element("raw-json").textContent = state.rawJson ?? "";
-  if (changedSelection) element("raw-response").open = false;
+  if (changedSelection) {
+    renderColumns(state.columns);
+    element("ddl-response").open = false;
+    element("raw-response").open = false;
+  }
   element("table-identity").hidden = !success;
   element("table-identity").textContent = success
     ? `${state.qualifiedName} · 集群 ${state.cid}`
@@ -119,6 +124,20 @@ function renderResult(nextState) {
       : success
         ? `HTTP ${state.httpStatus} · ${(state.elapsedMs / 1000).toFixed(1)} 秒`
         : "查询未完成";
+}
+
+function renderColumns(columns) {
+  const body = element("columns-body");
+  body.replaceChildren();
+  for (const column of columns ?? []) {
+    const row = document.createElement("tr");
+    for (const value of [column.name, column.type, column.comment]) {
+      const cell = document.createElement("td");
+      cell.textContent = value;
+      row.append(cell);
+    }
+    body.append(row);
+  }
 }
 
 function updateCount() {

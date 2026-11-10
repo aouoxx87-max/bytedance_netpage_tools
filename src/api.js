@@ -147,9 +147,85 @@ export function parseDdlResponse(payload, settings, table) {
   }
   return {
     result: payload.data.ddl,
+    columns: parseColumns(payload.data.ddl),
     rawJson: JSON.stringify(payload, null, 2),
     qualifiedName: `${table.dbName}.${table.tableName}`,
     cid: settings.cid,
+  };
+}
+
+export function parseColumns(ddl) {
+  return splitDefinitions(extractColumnBody(ddl))
+    .map(parseColumn)
+    .filter(Boolean);
+}
+
+function extractColumnBody(ddl) {
+  const open = ddl.indexOf("(");
+  if (open < 0) return "";
+  let depth = 0;
+  let inQuote = false;
+  for (let i = open; i < ddl.length; i++) {
+    const char = ddl[i];
+    if (inQuote) {
+      if (char === "'") {
+        if (ddl[i + 1] === "'") i++;
+        else inQuote = false;
+      }
+      continue;
+    }
+    if (char === "'") {
+      inQuote = true;
+    } else if (char === "(") {
+      depth++;
+    } else if (char === ")") {
+      depth--;
+      if (depth === 0) return ddl.slice(open + 1, i);
+    }
+  }
+  return "";
+}
+
+function splitDefinitions(body) {
+  const definitions = [];
+  let depth = 0;
+  let inQuote = false;
+  let start = 0;
+  for (let i = 0; i < body.length; i++) {
+    const char = body[i];
+    if (inQuote) {
+      if (char === "'") {
+        if (body[i + 1] === "'") i++;
+        else inQuote = false;
+      }
+      continue;
+    }
+    if (char === "'") {
+      inQuote = true;
+    } else if (char === "(" || char === "<") {
+      depth++;
+    } else if (char === ")" || char === ">") {
+      depth--;
+    } else if (char === "," && depth === 0) {
+      definitions.push(body.slice(start, i));
+      start = i + 1;
+    }
+  }
+  if (body.trim()) definitions.push(body.slice(start));
+  return definitions;
+}
+
+const columnPattern =
+  /^\s*`?([A-Za-z0-9_]+)`?\s+([A-Za-z0-9_]+\s*(?:<[^>]*>|\([^)]*\))?)\s*(?:COMMENT\s+'((?:[^']|'')*)')?\s*$/;
+
+function parseColumn(definition) {
+  const match = columnPattern.exec(definition);
+  // 非列定义（未来可能出现的表级约束）匹配不上时跳过，不阻断整表展示。
+  if (!match) return null;
+  return {
+    name: match[1],
+    type: match[2].replace(/\s+/g, " ").trim(),
+    comment: match[3] ? match[3].replaceAll("''", "'") : "",
   };
 }
 

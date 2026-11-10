@@ -7,6 +7,7 @@ import {
   DEFAULT_SETTINGS,
   DDL_ENDPOINT,
   MAX_RESPONSE_BYTES,
+  parseColumns,
   parseDdlResponse,
   parseSelection,
   parseSettings,
@@ -138,6 +139,22 @@ test("validates configuration at entry", () => {
     parseSettings({ ...DEFAULT_SETTINGS, authMode: "custom" }),
   );
   assert.throws(() => parseSettings(undefined));
+});
+
+test("parses DDL into columns without splitting on commas inside types or comments", () => {
+  assert.deepEqual(parseColumns(ddl), [
+    { name: "prod_id", type: "BIGINT", comment: "商品id" },
+    { name: "amount", type: "DECIMAL(38,6)", comment: "成交金额" },
+  ]);
+});
+
+test("keeps columns without comments and unescapes doubled quotes", () => {
+  const statement =
+    "CREATE TABLE `db`.`t`(\n  `id` BIGINT,\n  `note` STRING COMMENT 'it''s ok, really')";
+  assert.deepEqual(parseColumns(statement), [
+    { name: "id", type: "BIGINT", comment: "" },
+    { name: "note", type: "STRING", comment: "it's ok, really" },
+  ]);
 });
 test("builds the supplied API contract with GET and exactly three query parameters", () => {
   const request = buildRequest(
