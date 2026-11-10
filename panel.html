@@ -77,25 +77,23 @@
           <p id="settings-status" role="status"></p>
         </form>
       </details>
-      <section aria-labelledby="selection-title">
+      <section class="selection-section" aria-labelledby="selection-title">
         <div class="section-heading">
           <h2 id="selection-title">所选表名</h2>
-          <span id="selection-count" class="muted">0 字符</span>
         </div>
-        <textarea
-          id="selection"
-          aria-label="所选表名"
-          rows="3"
+        <div class="query-row">
+          <input
+            id="selection"
+            type="text"
+            aria-label="所选表名"
           maxlength="512"
           placeholder="ecom.app_ranklist_product_stats_df"
-        ></textarea>
-        <p class="hint">
-          在飞书中选中“库名.表名”，右键查询。只选表名时使用默认库名。
-        </p>
-        <div class="actions">
-          <span id="destination" class="muted">请先保存并授权接口</span
-          ><button id="query" class="primary">查询 DDL</button>
+          />
+          <button id="query" class="primary">查询 DDL</button>
         </div>
+        <p class="hint" id="selection-hint">
+          请选中“库名.表名” 默认库 ecom · cid= 50
+        </p>
       </section>
       <section aria-labelledby="result-title" class="result-section">
         <div class="section-heading">

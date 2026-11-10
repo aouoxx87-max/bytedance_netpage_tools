@@ -13,7 +13,6 @@ let state;
 element("settings-form").addEventListener("submit", saveSettings);
 element("query").addEventListener("click", submitQuery);
 element("copy").addEventListener("click", copyResult);
-element("selection").addEventListener("input", updateCount);
 element("auth-mode").addEventListener("change", showAuthMode);
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area === "session" && changes[`query:${windowId}`])
@@ -55,7 +54,6 @@ async function initialize() {
 
 function fillSelection(text) {
   element("selection").value = text;
-  updateCount();
 }
 
 async function saveSettings(event) {
@@ -111,7 +109,6 @@ function renderResult(nextState) {
   state = nextState;
   if (!state) return;
   if (changedSelection) element("selection").value = state.text;
-  updateCount();
   const success = state.status === "success";
   element("empty-state").hidden = true;
   element("columns-table").hidden = !success;
@@ -153,15 +150,12 @@ function renderColumns(columns) {
   }
 }
 
-function updateCount() {
-  element("selection-count").textContent =
-    `${element("selection").value.length} 字符`;
-}
 function showDestination(settings) {
   element("config-label").textContent = `集群 ${settings.cid}`;
-  element("destination").textContent =
-    `默认库 ${settings.defaultDatabase} · 集群 ${settings.cid}`;
+  element("selection-hint").textContent =
+    `请选中“库名.表名” 默认库 ${settings.defaultDatabase} · cid= ${settings.cid}`;
 }
+
 function showAuthMode() {
   const mode = element("auth-mode").value;
   element("token-field").hidden = mode !== "bearer";
