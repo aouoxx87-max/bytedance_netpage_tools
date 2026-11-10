@@ -67,6 +67,7 @@ async function saveSettings(event) {
     });
     await chrome.storage.local.set({ settings });
     showDestination(settings);
+    element("configuration").open = false;
     element("settings-status").textContent = "配置已保存，可以查询 DDL 了。";
   } catch (error) {
     element("settings-status").textContent = errorMessage(error);
